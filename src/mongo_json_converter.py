@@ -9,6 +9,9 @@ class MongoJsonConverter:
         # NumberInt(...) → {"$numberInt": "..."}
         json_text = re.sub(r'NumberInt\("?(\d+)"?\)', r'{"$numberInt": "\1"}', json_text)
 
+        # NumberDouble(...) → sadece çıplak sayı
+        json_text = re.sub(r'NumberDouble\("?([\d\.eE+-]+)"?\)', r'\1', json_text)
+
         # ISODate("...") → {"$date": "..."}
         json_text = re.sub(r'ISODate\("([^"]+)"\)', r'{"$date": "\1"}', json_text)
 
@@ -21,6 +24,10 @@ class MongoJsonConverter:
 
         # $numberInt → NumberInt(...)
         json_text = re.sub(r'{\s*"\$numberInt"\s*:\s*"(\d+)"\s*}', r'NumberInt(\1)', json_text)
+        
+        # Eğer Compass tarafında çıplak double varsa dokunma
+        # Ama {"$numberDouble":"..."} varsa NumberDouble(...) olarak çevir
+        json_text = re.sub(r'{\s*"\$numberDouble"\s*:\s*"([\d\.eE+-]+)"\s*}', r'NumberDouble(\1)', json_text)
 
         # $date → ISODate("...")
         json_text = re.sub(r'{\s*"\$date"\s*:\s*"([^"]+)"\s*}', r'ISODate("\1")', json_text)
